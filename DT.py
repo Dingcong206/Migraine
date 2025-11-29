@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.tree import DecisionTreeClassifier # 결정 트리 모델 임포트
+from sklearn.tree import DecisionTreeClassifier # Import Decision Tree Model
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 
@@ -14,7 +14,7 @@ TARGET_COLUMN = 'Type'
 try:
     data = pd.read_csv(FILE_PATH)
 except FileNotFoundError:
-    print(f"False: {FILE_PATH} can't be found. Please check the file path.")
+    print(f"Error: {FILE_PATH} can't be found. Please check the file path.")
     exit()
 
 y = data[TARGET_COLUMN]
@@ -27,40 +27,39 @@ print("-" * 30)
 # 2. Data Preprocessing
 
 
-# 2.1 목표 변수 (y) 标签 인코딩
+# 2.1 Label Encoding the Target Variable (y)
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 class_names = le.classes_
-#print(f"인코딩된 분류 레이블 (총 {len(class_names)} 개): {class_names}")
+#print(f"Encoded classification labels (Total {len(class_names)}): {class_names}")
 
 # 2.2 One-Hot Encoding X
 X_processed = pd.get_dummies(X)
 
-# 2.3
+# 2.3 Handle missing values (e.g., fill with 0)
 X_processed = X_processed.fillna(0)
 
-# 참고: 결정 트리는 거리에 민감하지 않으므로, 이 단계에서는 특성 축척 (StandardScaler)을 사용하지 않습니다.
+# Note: Decision Trees are not sensitive to distance, so feature scaling (StandardScaler) is not used here.
 
 
-#print(f"전처리 후 특성 개수: {X_processed.shape[1]} 개")
+#print(f"Number of features after preprocessing: {X_processed.shape[1]}")
 print("-" * 30)
 
 
 # 3. Splitting and Training
 
 
-
 X_train, X_test, y_train, y_test = train_test_split(
-    X_processed, # 전처리된 데이터 사용
+    X_processed, # Use preprocessed data
     y_encoded,
     test_size=0.3,
     random_state=42,
     stratify=y_encoded
 )
 
-print(f"훈련 데이터 샘플 수: {X_train.shape[0]}, 테스트 데이터 샘플 수: {X_test.shape[0]}")
+print(f"Number of training samples: {X_train.shape[0]}, Number of test samples: {X_test.shape[0]}")
 
-# 3.2 결정 트리 모델 초기화 및 훈련
+# 3.2 Initialize and Train Decision Tree Model
 
 dt_model = DecisionTreeClassifier(criterion='gini', random_state=42)
 
@@ -72,10 +71,9 @@ print("-" * 30)
 # 4. Prediction and Evaluation
 
 
-
 y_pred = dt_model.predict(X_test)
 
-#results
+# Results
 accuracy = accuracy_score(y_test, y_pred)
 conf_matrix = confusion_matrix(y_test, y_pred)
 
@@ -86,9 +84,9 @@ report = classification_report(
     digits=4
 )
 
-print(f"Accuracy: {accuracy:.4f}**")
-print("\nConfusion Matrix:**")
+print(f"Accuracy: {accuracy:.4f}")
+print("\nConfusion Matrix:")
 print(conf_matrix)
-print("\nDT Prediction:")
+print("\nDT Prediction Report:")
 print(report)
 print("-" * 30)

@@ -1,11 +1,11 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.neighbors import KNeighborsClassifier # 引入 KNN 模型
+from sklearn.neighbors import KNeighborsClassifier # Import KNN Model
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 # ----------------------------------------------------
-# 1. 数据加载与分离 (Data Loading and Separation)
+# 1. Data Loading and Separation
 # ----------------------------------------------------
 
 FILE_PATH = 'migraine_data.csv'
@@ -14,46 +14,46 @@ TARGET_COLUMN = 'Type'
 try:
     data = pd.read_csv(FILE_PATH)
 except FileNotFoundError:
-    print(f"错误：未能找到文件 {FILE_PATH}。请检查文件路径。")
+    print(f"Error: File {FILE_PATH} not found. Please check the file path.")
     exit()
 
 y = data[TARGET_COLUMN]
 X = data.drop(columns=[TARGET_COLUMN])
 
-print("--- 数据集加载成功 ---")
+#print("--- Dataset loaded successfully ---")
 print("-" * 30)
 
 # ----------------------------------------------------
-# 2. 数据预处理 (Data Preprocessing) - 包含特征缩放
+# 2. Data Preprocessing - Including Feature Scaling
 # ----------------------------------------------------
 
-# 2.1 目标变量 (y) 标签编码
+# 2.1 Label Encoding the Target Variable (y)
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 class_names = le.classes_
-print(f"已编码的分类标签（共 {len(class_names)} 类）：{class_names}")
+print(f"Encoded classification labels (Total {len(class_names)} classes): {class_names}")
 
-# 2.2 特征变量 (X) 独热编码 (One-Hot Encoding)
+# 2.2 Feature Variables (X) One-Hot Encoding
 X_processed = pd.get_dummies(X)
 
-# 2.3 缺失值处理
+# 2.3 Handle missing values
 X_processed = X_processed.fillna(0)
 
-# 2.4 **特征标准化/缩放 (Standard Scaling)**
-# KNN 依赖距离计算，因此标准化是必要的。
+# 2.4 **Feature Standardization/Scaling (Standard Scaling)**
+# Standardization is necessary because KNN relies on distance calculation.
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_processed)
 
-print(f"预处理后特征数量: {X_scaled.shape[1]} 列")
+print(f"Number of features after preprocessing: {X_scaled.shape[1]} columns")
 print("-" * 30)
 
 # ----------------------------------------------------
-# 3. 数据集划分与模型训练 (Splitting and Training)
+# 3. Splitting and Training
 # ----------------------------------------------------
 
-# 3.1 划分数据集
+# 3.1 Splitting the Dataset
 X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, # 使用缩放后的数据
+    X_scaled, # Use scaled data
     y_encoded,
     test_size=0.3,
     random_state=42,
@@ -61,26 +61,26 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 
-#print(f"训练集样本数: {X_train.shape[0]}，测试集样本数: {X_test.shape[0]}")
+#print(f"Number of training samples: {X_train.shape[0]}, Number of test samples: {X_test.shape[0]}")
 
-# 3.2 初始化并训练 K-近邻 (KNN) 模型
-# n_neighbors=5：这是 K 的值，即模型在进行预测时考虑最近的 5 个邻居。
-# K 的选择是 KNN 模型的关键超参数，通常需要通过交叉验证进行优化。
+# 3.2 Initialize and Train K-Nearest Neighbors (KNN) Model
+# n_neighbors=5: This is the value of K, meaning the model considers the 5 nearest neighbors for prediction.
+# The choice of K is a critical hyperparameter and usually requires optimization through cross-validation.
 knn_model = KNeighborsClassifier(n_neighbors=5)
 
-# KNN 实际上在 fit 阶段只是存储数据，真正的计算发生在 predict 阶段
+# KNN essentially just stores the data during the fit phase; the actual computation happens during prediction.
 knn_model.fit(X_train, y_train)
 print("Training finish")
 print("-" * 30)
 
 # ----------------------------------------------------
-# 4. 模型预测与评估 (Prediction and Evaluation)
+# 4. Model Prediction and Evaluation
 # ----------------------------------------------------
 
-# 4.1 使用测试集进行预测
+# 4.1 Make predictions using the test set
 y_pred = knn_model.predict(X_test)
 
-# 4.2 计算性能指标
+# 4.2 Calculate performance metrics
 accuracy = accuracy_score(y_test, y_pred)
 conf_matrix = confusion_matrix(y_test, y_pred)
 
@@ -95,6 +95,6 @@ report = classification_report(
 print(f"Accuracy: {accuracy:.4f}")
 print("\nConfusion Matrix")
 print(conf_matrix)
-print("\nKNN Prediction")
+print("\nKNN Prediction Report")
 print(report)
 print("-" * 30)
